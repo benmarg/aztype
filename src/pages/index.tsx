@@ -14,7 +14,6 @@ function useKeyDown<T extends (e: KeyboardEvent) => void>(
     const wasAnyKeyPressed =
       keys.includes(e.key.toUpperCase()) || e.key === "Backspace";
     if (wasAnyKeyPressed) {
-      e.preventDefault();
       handler(e);
     }
   };
@@ -76,6 +75,23 @@ export default function Home() {
     }
   }, Object.keys(letterMap));
 
+  const cssForLetters = `
+  div.letterContainer span:nth-child(-n+${
+    letterMap[currentLetter as keyof typeof letterMap]
+  }) {
+    color: red
+  }
+
+  div.letterContainer span:nth-child(n+${
+    letterMap[currentLetter as keyof typeof letterMap] + 1
+  }):nth-child(-n+${
+    letterMap[currentLetter as keyof typeof letterMap] + typoStack.length
+  }) {
+    color: green;
+  }
+  }
+    `;
+
   return (
     <>
       <Head>
@@ -84,10 +100,38 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="h-screen w-full ">
-        <div className="flex h-[100%] w-[100%] flex-col items-center justify-center bg-gray-500">
+        <div className="flex h-[100%] w-[100%] flex-col items-center justify-center gap-3 bg-gray-500 text-black">
           <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
           <h2>{...typoStack}</h2>
-          <p>ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
+          <style>{cssForLetters}</style>
+          <div className="letterContainer">
+            <span>A</span>
+            <span>B</span>
+            <span>C</span>
+            <span>D</span>
+            <span>E</span>
+            <span>F</span>
+            <span>G</span>
+            <span>H</span>
+            <span>I</span>
+            <span>J</span>
+            <span>K</span>
+            <span>L</span>
+            <span>M</span>
+            <span>N</span>
+            <span>O</span>
+            <span>P</span>
+            <span>Q</span>
+            <span>R</span>
+            <span>S</span>
+            <span>T</span>
+            <span>U</span>
+            <span>V</span>
+            <span>W</span>
+            <span>X</span>
+            <span>Y</span>
+            <span>Z</span>
+          </div>
         </div>
       </main>
     </>
