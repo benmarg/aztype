@@ -3,6 +3,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Footer from "~/components/footer";
 import { api } from "~/utils/api";
 
 function useKeyDown<T extends (e: KeyboardEvent) => void>(
@@ -109,7 +110,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="h-screen w-full ">
-        <div className="flex h-[100%] w-[100%] flex-col items-center justify-center gap-3 bg-primary font-sans text-subprimary">
+        <div className="flex h-full flex-col items-center justify-center gap-3 overflow-auto bg-primary font-sans text-subprimary">
           <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
           <style>{cssForLetters}</style>
           <div
