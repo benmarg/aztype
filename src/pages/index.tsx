@@ -3,6 +3,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Footer from "~/components/footer";
 import { api } from "~/utils/api";
 
 function useKeyDown<T extends (e: KeyboardEvent) => void>(
@@ -61,6 +62,7 @@ export default function Home() {
   const [typoStack, setTypoStack] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number>();
   const [totalTime, setTotalTime] = useState<number>();
+  const [mistakes, setMistakes] = useState<number>(0);
 
   useKeyDown((e) => {
     console.log(currentLetter);
@@ -79,8 +81,15 @@ export default function Home() {
       }
     } else if (e.key === "Backspace") {
       setTypoStack(typoStack.slice(0, -1));
+    } else if (e.key.toUpperCase() === "R" && currentLetter === "Z") {
+      setCurrentLetter("");
+      setTypoStack([]);
+      setStartTime(undefined);
+      setTotalTime(undefined);
+      setMistakes(0);
     } else {
       setTypoStack([...typoStack, e.key.toUpperCase()]);
+      setMistakes(mistakes + 1);
     }
   }, Object.keys(letterMap));
 
@@ -108,14 +117,14 @@ export default function Home() {
         <meta name="description" content="Type A-Z as fast as you can!" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="h-screen w-full ">
-        <div className="flex h-[100%] w-[100%] flex-col items-center justify-center gap-3 bg-primary font-sans text-subprimary">
+      <main className="flex h-screen w-full flex-col">
+        <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 overflow-auto bg-primary font-sans text-subprimary">
           <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
           <style>{cssForLetters}</style>
           <div
             className={`${
               currentLetter === "Z" ? "text-green-300" : "letterContainer"
-            }`}
+            } flex gap-0.5 text-2xl`}
           >
             <span>A</span>
             <span>B</span>
@@ -144,12 +153,34 @@ export default function Home() {
             <span>Y</span>
             <span>Z</span>
           </div>
-          {totalTime && (
-            <div>
-              <h1>Time: {totalTime / 1000} seconds</h1>
-            </div>
-          )}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 hover:stroke-white"
+            onClick={() => {
+              setCurrentLetter("");
+              setTypoStack([]);
+              setStartTime(undefined);
+              setTotalTime(undefined);
+              setMistakes(0);
+            }}
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            fill="none"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+          </svg>
+
+          {totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
+          {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
         </div>
+        <Footer />
       </main>
     </>
   );
