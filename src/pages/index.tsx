@@ -59,15 +59,24 @@ export default function Home() {
 
   const [currentLetter, setCurrentLetter] = useState("");
   const [typoStack, setTypoStack] = useState<string[]>([]);
+  const [startTime, setStartTime] = useState<number>();
+  const [totalTime, setTotalTime] = useState<number>();
 
   useKeyDown((e) => {
-    console.log(e.key);
+    console.log(currentLetter);
     if (
       letterMap[e.key.toUpperCase() as keyof typeof letterMap] ===
         letterMap[currentLetter as keyof typeof letterMap] + 1 &&
       typoStack.length === 0
     ) {
       setCurrentLetter(e.key.toUpperCase());
+      if (e.key.toUpperCase() === "A") {
+        setStartTime(Date.now());
+        console.log(startTime);
+      }
+      if (e.key.toUpperCase() === "Z") {
+        setTotalTime(Date.now() - startTime!);
+      }
     } else if (e.key === "Backspace") {
       setTypoStack(typoStack.slice(0, -1));
     } else {
@@ -76,21 +85,21 @@ export default function Home() {
   }, Object.keys(letterMap));
 
   const cssForLetters = `
-  div.letterContainer span:nth-child(-n+${
-    letterMap[currentLetter as keyof typeof letterMap]
-  }) {
-    color: red
-  }
+    div.letterContainer span:nth-child(-n+${
+      letterMap[currentLetter as keyof typeof letterMap]
+    }) {
+      color: #e5f7ef
+    }
 
-  div.letterContainer span:nth-child(n+${
-    letterMap[currentLetter as keyof typeof letterMap] + 1
-  }):nth-child(-n+${
+    div.letterContainer span:nth-child(n+${
+      letterMap[currentLetter as keyof typeof letterMap] + 1
+    }):nth-child(-n+${
     letterMap[currentLetter as keyof typeof letterMap] + typoStack.length
   }) {
-    color: green;
-  }
-  }
-    `;
+      color: #ff5f5f;
+    }
+    }
+  `;
 
   return (
     <>
@@ -100,11 +109,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="h-screen w-full ">
-        <div className="flex h-[100%] w-[100%] flex-col items-center justify-center gap-3 bg-gray-500 text-black">
+        <div className="flex h-[100%] w-[100%] flex-col items-center justify-center gap-3 bg-primary font-sans text-subprimary">
           <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
-          <h2>{...typoStack}</h2>
           <style>{cssForLetters}</style>
-          <div className="letterContainer">
+          <div
+            className={`${
+              currentLetter === "Z" ? "text-green-300" : "letterContainer"
+            }`}
+          >
             <span>A</span>
             <span>B</span>
             <span>C</span>
@@ -132,6 +144,11 @@ export default function Home() {
             <span>Y</span>
             <span>Z</span>
           </div>
+          {totalTime && (
+            <div>
+              <h1>Time: {totalTime / 1000} seconds</h1>
+            </div>
+          )}
         </div>
       </main>
     </>
