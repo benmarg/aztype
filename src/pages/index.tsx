@@ -62,6 +62,7 @@ export default function Home() {
   const [typoStack, setTypoStack] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number>();
   const [totalTime, setTotalTime] = useState<number>();
+  const [mistakes, setMistakes] = useState<number>(0);
 
   useKeyDown((e) => {
     console.log(currentLetter);
@@ -80,8 +81,15 @@ export default function Home() {
       }
     } else if (e.key === "Backspace") {
       setTypoStack(typoStack.slice(0, -1));
+    } else if (e.key.toUpperCase() === "R" && currentLetter === "Z") {
+      setCurrentLetter("");
+      setTypoStack([]);
+      setStartTime(undefined);
+      setTotalTime(undefined);
+      setMistakes(0);
     } else {
       setTypoStack([...typoStack, e.key.toUpperCase()]);
+      setMistakes(mistakes + 1);
     }
   }, Object.keys(letterMap));
 
@@ -153,6 +161,7 @@ export default function Home() {
               setTypoStack([]);
               setStartTime(undefined);
               setTotalTime(undefined);
+              setMistakes(0);
             }}
             width="24"
             height="24"
@@ -168,11 +177,8 @@ export default function Home() {
             <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
           </svg>
 
-          {totalTime && (
-            <div>
-              <h1>Time: {totalTime / 1000} seconds</h1>
-            </div>
-          )}
+          {totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
+          {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
         </div>
         <Footer />
       </main>
