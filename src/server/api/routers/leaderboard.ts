@@ -3,13 +3,16 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const leaderboardRouter = createTRPCRouter({
   setScore: publicProcedure
-    .input(z.object({ score: z.number(), userId: z.string() }))
+    .input(z.object({ time: z.number(), userId: z.string() }))
     .query(({ input, ctx }) => {
-      return {
-        greeting: `Hello ${input.score}`,
-      };
+      return ctx.prisma.score.create({
+        data: {
+          time: input.time,
+          userId: input.userId,
+        },
+      });
     }),
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.example.findMany();
+    return ctx.prisma.score.findMany();
   }),
 });
