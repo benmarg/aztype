@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
-export const exampleRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
+export const leaderboardRouter = createTRPCRouter({
+  setScore: publicProcedure
+    .input(z.object({ score: z.number(), userId: z.string() }))
+    .query(({ input, ctx }) => {
       return {
-        greeting: `Hello ${input.text}`,
+        greeting: `Hello ${input.score}`,
       };
     }),
   getAll: publicProcedure.query(({ ctx }) => {

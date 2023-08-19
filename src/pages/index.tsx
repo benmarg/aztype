@@ -1,11 +1,19 @@
 "use client";
-
-import { time } from "console";
 import Head from "next/head";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import Footer from "~/components/footer";
-import { api } from "~/utils/api";
+import { SignIn, SignOutButton, SignUp, useClerk } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "src/@/components/ui/card";
+import { LeaderboardCard } from "~/components/leaderboardCard";
 
 function useKeyDown<T extends (e: KeyboardEvent) => void>(
   handler: T,
@@ -13,6 +21,8 @@ function useKeyDown<T extends (e: KeyboardEvent) => void>(
 ) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const onKeyDown = (e: KeyboardEvent) => {
+    if (!e.key) return;
+
     const wasAnyKeyPressed =
       keys.includes(e.key.toUpperCase()) || e.key === "Backspace";
     if (wasAnyKeyPressed) {
@@ -66,6 +76,18 @@ export default function Home() {
   const [mistakes, setMistakes] = useState<number>(0);
   const [timeBetweenLetters, setTimeBetweenLetters] = useState<number[]>([]);
 
+  const { isSignedIn, user } = useUser();
+  const { openSignUp } = useClerk();
+
+  function reset() {
+    setCurrentLetter("");
+    setTypoStack([]);
+    setStartTime(undefined);
+    setTotalTime(undefined);
+    setMistakes(0);
+    setTimeBetweenLetters([]);
+  }
+
   useKeyDown((e) => {
     console.log(currentLetter);
     if (
@@ -90,13 +112,7 @@ export default function Home() {
       }
     } else if (e.key === "Backspace") {
       setTypoStack(typoStack.slice(0, -1));
-    } else if (e.key.toUpperCase() === "R" && currentLetter === "Z") {
-      setCurrentLetter("");
-      setTypoStack([]);
-      setStartTime(undefined);
-      setTotalTime(undefined);
-      setMistakes(0);
-    } else {
+    } else if (currentLetter !== "Z") {
       setTypoStack([...typoStack, e.key.toUpperCase()]);
       setMistakes(mistakes + 1);
     }
@@ -169,11 +185,7 @@ export default function Home() {
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 hover:stroke-white"
             onClick={() => {
-              setCurrentLetter("");
-              setTypoStack([]);
-              setStartTime(undefined);
-              setTotalTime(undefined);
-              setMistakes(0);
+              reset();
             }}
             width="24"
             height="24"
@@ -199,8 +211,18 @@ export default function Home() {
               &nbsp;seconds
             </h2>
           )}
+          {currentLetter === "Z" && timeBetweenLetters.length > 0 && (
+            <h2>
+              Shortest time between letters:{" "}
+              {(Math.min(...timeBetweenLetters) / 1000).toFixed(3)}
+              &nbsp;seconds
+            </h2>
+          )}
           {totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
+          {!isSignedIn && <button onClick={openSignUp}>Sign up</button>}
+          {isSignedIn && <SignOutButton />}
+          {currentLetter === "Z" && isSignedIn && <LeaderboardCard />}
         </div>
         <Footer />
       </main>
