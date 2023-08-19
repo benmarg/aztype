@@ -128,7 +128,10 @@ export default function Home() {
       </Head>
       <main className="flex h-screen w-full flex-col">
         <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 overflow-auto bg-primary font-sans text-subprimary">
-          <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
+          {!currentLetter && <h1 className="animate-pulse">start typing...</h1>}
+          {currentLetter && (
+            <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
+          )}
           <style>{cssForLetters}</style>
           <div
             className={`${
