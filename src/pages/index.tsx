@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "src/@/components/ui/card";
 import { LeaderboardCard } from "~/components/leaderboardCard";
+import { api } from "~/utils/api";
 
 function useKeyDown<T extends (e: KeyboardEvent) => void>(
   handler: T,
@@ -72,18 +73,20 @@ export default function Home() {
   const [currentLetter, setCurrentLetter] = useState("");
   const [typoStack, setTypoStack] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number>();
-  const [totalTime, setTotalTime] = useState<number>();
+  const [totalTime, setTotalTime] = useState<number>(0);
   const [mistakes, setMistakes] = useState<number>(0);
   const [timeBetweenLetters, setTimeBetweenLetters] = useState<number[]>([]);
 
   const { isSignedIn, user } = useUser();
   const { openSignUp } = useClerk();
 
+  const setScore = api.leaderboard.setScore.useMutation();
+
   function reset() {
     setCurrentLetter("");
     setTypoStack([]);
     setStartTime(undefined);
-    setTotalTime(undefined);
+    setTotalTime(0);
     setMistakes(0);
     setTimeBetweenLetters([]);
   }
@@ -117,6 +120,13 @@ export default function Home() {
       setMistakes(mistakes + 1);
     }
   }, Object.keys(letterMap));
+
+  function handleSubmit(e) {
+    setScore.mutate({
+      userId: "1234",
+      time: totalTime,
+    });
+  }
 
   const cssForLetters = `
     div.letterContainer span:nth-child(-n+${
@@ -218,11 +228,13 @@ export default function Home() {
               &nbsp;seconds
             </h2>
           )}
-          {totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
+          {!!totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
           {!isSignedIn && <button onClick={openSignUp}>Sign up</button>}
           {isSignedIn && <SignOutButton />}
-          {currentLetter === "Z" && isSignedIn && <LeaderboardCard />}
+          <form onSubmit={handleSubmit}>
+            {currentLetter === "Z" && isSignedIn && <LeaderboardCard />}
+          </form>
         </div>
         <Footer />
       </main>
