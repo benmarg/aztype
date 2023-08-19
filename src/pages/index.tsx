@@ -1,5 +1,6 @@
 "use client";
 
+import { time } from "console";
 import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -63,6 +64,7 @@ export default function Home() {
   const [startTime, setStartTime] = useState<number>();
   const [totalTime, setTotalTime] = useState<number>();
   const [mistakes, setMistakes] = useState<number>(0);
+  const [timeBetweenLetters, setTimeBetweenLetters] = useState<number[]>([]);
 
   useKeyDown((e) => {
     console.log(currentLetter);
@@ -78,6 +80,13 @@ export default function Home() {
       }
       if (e.key.toUpperCase() === "Z") {
         setTotalTime(Date.now() - startTime!);
+      }
+      if (currentLetter !== "A" && startTime) {
+        setTimeBetweenLetters([
+          ...timeBetweenLetters,
+          Date.now() -
+            (startTime + timeBetweenLetters.reduce((a, b) => a + b, 0)),
+        ]);
       }
     } else if (e.key === "Backspace") {
       setTypoStack(typoStack.slice(0, -1));
@@ -119,7 +128,10 @@ export default function Home() {
       </Head>
       <main className="flex h-screen w-full flex-col">
         <div className="flex h-full flex-1 flex-col items-center justify-center gap-3 overflow-auto bg-primary font-sans text-subprimary">
-          <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
+          {!currentLetter && <h1 className="animate-pulse">start typing...</h1>}
+          {currentLetter && (
+            <h1>{letterMap[currentLetter as keyof typeof letterMap]}/26</h1>
+          )}
           <style>{cssForLetters}</style>
           <div
             className={`${
@@ -176,7 +188,17 @@ export default function Home() {
             <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
             <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
           </svg>
-
+          {currentLetter === "Z" && timeBetweenLetters.length > 0 && (
+            <h2>
+              Average time between letters:{" "}
+              {(
+                timeBetweenLetters.reduce((a, b) => a + b) /
+                timeBetweenLetters.length /
+                1000
+              ).toFixed(3)}
+              &nbsp;seconds
+            </h2>
+          )}
           {totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
         </div>
