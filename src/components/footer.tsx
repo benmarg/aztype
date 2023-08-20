@@ -1,7 +1,12 @@
+import { SignOutButton, useUser } from "@clerk/nextjs";
+
 export default function Footer() {
+  const { isSignedIn, user } = useUser();
+
   return (
     <>
       <div className="flex justify-center gap-4 bg-primary pb-8 align-middle text-sm text-subprimary ">
+        <div>{isSignedIn && <SignOutButton />}</div>
         <a
           className="flex gap-1 hover:text-textcolor"
           onClick={() =>

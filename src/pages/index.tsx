@@ -1,6 +1,6 @@
 "use client";
 import Head from "next/head";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import Footer from "~/components/footer";
 import { SignIn, SignOutButton, SignUp, useClerk } from "@clerk/nextjs";
 import { useUser } from "@clerk/nextjs";
@@ -15,6 +15,7 @@ import {
 } from "src/@/components/ui/card";
 import { LeaderboardCard } from "~/components/leaderboardCard";
 import { api } from "~/utils/api";
+import { WorseTimeCard } from "~/components/worseTimeCard";
 
 function useKeyDown<T extends (e: KeyboardEvent) => void>(
   handler: T,
@@ -70,6 +71,9 @@ export default function Home() {
     Z: 26,
   };
 
+  const { isSignedIn, user } = useUser();
+  const { openSignUp } = useClerk();
+
   const [currentLetter, setCurrentLetter] = useState("");
   const [typoStack, setTypoStack] = useState<string[]>([]);
   const [startTime, setStartTime] = useState<number>();
@@ -77,9 +81,9 @@ export default function Home() {
   const [mistakes, setMistakes] = useState<number>(0);
   const [timeBetweenLetters, setTimeBetweenLetters] = useState<number[]>([]);
 
-  const { isSignedIn, user } = useUser();
-  const { openSignUp } = useClerk();
-
+  const { data: previousScore } = api.leaderboard.getScoreByUserId.useQuery({
+    userId: user?.id ?? "",
+  });
   const setScore = api.leaderboard.setScore.useMutation();
 
   function reset() {
@@ -121,10 +125,14 @@ export default function Home() {
     }
   }, Object.keys(letterMap));
 
-  function handleSubmit(e) {
-    setScore.mutate({
-      userId: "1234",
-      time: totalTime,
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!user?.id) {
+      return;
+    }
+    await setScore.mutateAsync({
+      userId: user.id,
+      time: totalTime / 1000,
     });
   }
 
@@ -193,7 +201,9 @@ export default function Home() {
           </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 hover:stroke-white"
+            className={`h-6 w-6 ${
+              currentLetter === "Z" && "animate-pulse"
+            } hover:stroke-white`}
             onClick={() => {
               reset();
             }}
@@ -210,6 +220,10 @@ export default function Home() {
             <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
             <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
           </svg>
+          {!!totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
+          {!!previousScore?.time && isSignedIn && (
+            <h2 className="pb-3">Previous time: {previousScore?.time}</h2>
+          )}
           {currentLetter === "Z" && timeBetweenLetters.length > 0 && (
             <h2>
               Average time between letters:{" "}
@@ -228,13 +242,25 @@ export default function Home() {
               &nbsp;seconds
             </h2>
           )}
-          {!!totalTime && <h2>Time: {totalTime / 1000} seconds</h2>}
+
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
           {!isSignedIn && <button onClick={openSignUp}>Sign up</button>}
-          {isSignedIn && <SignOutButton />}
-          <form onSubmit={handleSubmit}>
-            {currentLetter === "Z" && isSignedIn && <LeaderboardCard />}
-          </form>
+          {(previousScore?.time && totalTime / 1000 < previousScore?.time) ||
+          !previousScore ? (
+            <form onSubmit={(e) => void handleSubmit(e)}>
+              {currentLetter === "Z" && isSignedIn && (
+                <LeaderboardCard
+                  previousTime={previousScore?.time}
+                  currentTime={totalTime / 1000}
+                />
+              )}
+            </form>
+          ) : (
+            <WorseTimeCard
+              previousTime={previousScore?.time}
+              currentTime={totalTime / 1000}
+            />
+          )}
         </div>
         <Footer />
       </main>

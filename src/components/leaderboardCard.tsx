@@ -19,13 +19,29 @@ import {
   SelectValue,
 } from "src/@/components/ui/select";
 
-export function LeaderboardCard() {
+type LeaderboardCardProps = {
+  previousTime: number | undefined;
+  currentTime: number;
+};
+
+export function LeaderboardCard({
+  previousTime,
+  currentTime,
+}: LeaderboardCardProps) {
   return (
     <Card className="w-[350px] border-primary bg-secondary shadow-lg shadow-slate-400">
       <CardHeader>
         <CardTitle className="text-slate-700">
-          Add your time to the leaderboard!
+          {previousTime
+            ? "Update your time on the leaderboard!"
+            : "Add your time on the leaderboard!"}
         </CardTitle>
+        <CardDescription>
+          {previousTime &&
+            `You beat your previous time by ${(
+              previousTime - currentTime
+            ).toFixed(3)} seocnds!`}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form>
