@@ -244,7 +244,7 @@ export default function Home() {
           )}
 
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
-          {!isSignedIn && <button onClick={openSignUp}>Sign up</button>}
+          {!isSignedIn && <button onClick={() => openSignUp()}>Sign up</button>}
           {(previousScore?.time && totalTime / 1000 < previousScore?.time) ||
           !previousScore ? (
             <form onSubmit={(e) => void handleSubmit(e)}>
