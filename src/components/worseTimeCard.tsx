@@ -32,7 +32,7 @@ export function WorseTimeCard({
     <Card className="w-[350px] border-primary bg-secondary shadow-lg shadow-slate-400">
       <CardHeader>
         <CardTitle className="text-slate-700">
-          Your didn't quite beat your previous time!
+          Your didn&apos;t quite beat your previous time!
         </CardTitle>
         <CardDescription className="pt-4">
           Your time was {(currentTime - previousTime!).toFixed(3)} seconds
