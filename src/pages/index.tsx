@@ -13,9 +13,10 @@ import {
   CardHeader,
   CardTitle,
 } from "src/@/components/ui/card";
-import { LeaderboardCard } from "~/components/leaderboardCard";
+import { SubmitScoreCard } from "~/components/submitScoreCard";
 import { api } from "~/utils/api";
 import { WorseTimeCard } from "~/components/worseTimeCard";
+import { ScoreboardCard } from "~/components/scoreboardCard";
 
 function useKeyDown<T extends (e: KeyboardEvent) => void>(
   handler: T,
@@ -69,7 +70,7 @@ export default function Home() {
     X: 24,
     Y: 25,
     Z: 26,
-  };
+  } as const;
 
   const { isSignedIn, user } = useUser();
   const { openSignUp } = useClerk();
@@ -79,11 +80,19 @@ export default function Home() {
   const [startTime, setStartTime] = useState<number>();
   const [totalTime, setTotalTime] = useState<number>(0);
   const [mistakes, setMistakes] = useState<number>(0);
+  const [nickname, setNickname] = useState<string>("");
   const [timeBetweenLetters, setTimeBetweenLetters] = useState<number[]>([]);
 
   const { data: previousScore } = api.leaderboard.getScoreByUserId.useQuery({
     userId: user?.id ?? "",
   });
+  const { data: scoreboard } = api.leaderboard.getScoreboard.useQuery(
+    {
+      time: totalTime / 1000,
+    },
+    { enabled: currentLetter === "Z" }
+  );
+
   const setScore = api.leaderboard.setScore.useMutation();
 
   function reset() {
@@ -96,7 +105,6 @@ export default function Home() {
   }
 
   useKeyDown((e) => {
-    console.log(currentLetter);
     if (
       letterMap[e.key.toUpperCase() as keyof typeof letterMap] ===
         letterMap[currentLetter as keyof typeof letterMap] + 1 &&
@@ -105,7 +113,6 @@ export default function Home() {
       setCurrentLetter(e.key.toUpperCase());
       if (e.key.toUpperCase() === "A") {
         setStartTime(Date.now());
-        console.log(startTime);
       }
       if (e.key.toUpperCase() === "Z") {
         setTotalTime(Date.now() - startTime!);
@@ -133,6 +140,7 @@ export default function Home() {
     await setScore.mutateAsync({
       userId: user.id,
       time: totalTime / 1000,
+      nickname: nickname,
     });
   }
 
@@ -249,9 +257,11 @@ export default function Home() {
           !previousScore ? (
             <form onSubmit={(e) => void handleSubmit(e)}>
               {currentLetter === "Z" && isSignedIn && (
-                <LeaderboardCard
+                <SubmitScoreCard
                   previousTime={previousScore?.time}
                   currentTime={totalTime / 1000}
+                  nickname={nickname}
+                  setNickname={setNickname}
                 />
               )}
             </form>
@@ -259,6 +269,14 @@ export default function Home() {
             <WorseTimeCard
               previousTime={previousScore?.time}
               currentTime={totalTime / 1000}
+            />
+          )}
+          {scoreboard && (
+            <ScoreboardCard
+              fasterTimes={scoreboard?.fasterTimes}
+              slowerTimes={scoreboard?.slowerTimes}
+              currentTime={totalTime / 1000}
+              rank={scoreboard?.rank}
             />
           )}
         </div>

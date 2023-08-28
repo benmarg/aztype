@@ -16,4 +16,5 @@ model Score {
     updatedAt DateTime @updatedAt
     userId    String   @unique
     time      Float
+    nickname  String
 }

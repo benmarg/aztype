@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { Button } from "src/@/components/ui/button";
+import { type Score } from "@prisma/client";
 import {
   Card,
   CardContent,
@@ -20,38 +21,41 @@ import {
 } from "src/@/components/ui/select";
 
 type LeaderboardCardProps = {
-  previousTime: number | undefined;
+  fasterTimes: Score[];
+  slowerTimes: Score[];
   currentTime: number;
+  rank: number;
 };
 
-export function LeaderboardCard({
-  previousTime,
+export function ScoreboardCard({
+  fasterTimes,
+  slowerTimes,
   currentTime,
+  rank,
 }: LeaderboardCardProps) {
   return (
     <Card className="w-[350px] border-primary bg-secondary shadow-lg shadow-slate-400">
       <CardHeader>
         <CardTitle className="text-slate-700">
-          {previousTime
-            ? "Update your time on the leaderboard!"
-            : "Add your time on the leaderboard!"}
+          Check out your position on the leaderboard!
         </CardTitle>
-        <CardDescription>
-          {previousTime &&
-            `You beat your previous time by ${(
-              previousTime - currentTime
-            ).toFixed(3)} seocnds!`}
-        </CardDescription>
+        <CardDescription>You are currently ranked {rank} in the world!</CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
-          <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Enter your Nickname" />
-            </div>
+        <div className="grid w-full items-center gap-4">
+          <div className="flex flex-col space-y-1.5">
+            <p>Times:</p>
+            <ol>
+              {fasterTimes?.map((score, index) => (
+                <li key={index}>{score.time}</li>
+              ))}
+              <li>{currentTime}</li>
+              {slowerTimes?.map((score, index) => (
+                <li key={index}>{score.time}</li>
+              ))}
+            </ol>
           </div>
-        </form>
+        </div>
       </CardContent>
       <CardFooter className="flex">
         <Button type="submit" className="w-full" variant="outline">
