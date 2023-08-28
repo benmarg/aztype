@@ -39,29 +39,33 @@ export function ScoreboardCard({
         <CardTitle className="text-slate-700">
           Check out your position on the leaderboard!
         </CardTitle>
-        <CardDescription>You are currently ranked {rank} in the world!</CardDescription>
+        <CardDescription>
+          You are currently rank {rank} in the world!
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid w-full items-center gap-4">
-          <div className="flex flex-col space-y-1.5">
+        <div className="grid w-full items-center">
+          <div className="flex flex-col space-y-1.5 overflow-hidden">
             <p>Times:</p>
             <ol>
               {fasterTimes?.map((score, index) => (
-                <li key={index}>{score.time}</li>
+                <li key={index}>
+                  {rank - Math.abs(index - fasterTimes.length)}. {score.time}{" "}
+                  {score.nickname}
+                </li>
               ))}
-              <li>{currentTime}</li>
+              <li className="text-[#A4AC96]">
+                {rank}. {currentTime} Your High Score
+              </li>
               {slowerTimes?.map((score, index) => (
-                <li key={index}>{score.time}</li>
+                <li key={index}>
+                  {rank + (index + 1)}. {score.time} {score.nickname}
+                </li>
               ))}
             </ol>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex">
-        <Button type="submit" className="w-full" variant="outline">
-          Submit
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

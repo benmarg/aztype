@@ -253,32 +253,34 @@ export default function Home() {
 
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
           {!isSignedIn && <button onClick={() => openSignUp()}>Sign up</button>}
-          {(previousScore?.time && totalTime / 1000 < previousScore?.time) ||
-          !previousScore ? (
-            <form onSubmit={(e) => void handleSubmit(e)}>
-              {currentLetter === "Z" && isSignedIn && (
-                <SubmitScoreCard
-                  previousTime={previousScore?.time}
-                  currentTime={totalTime / 1000}
-                  nickname={nickname}
-                  setNickname={setNickname}
-                />
-              )}
-            </form>
-          ) : (
-            <WorseTimeCard
-              previousTime={previousScore?.time}
-              currentTime={totalTime / 1000}
-            />
-          )}
-          {scoreboard && (
-            <ScoreboardCard
-              fasterTimes={scoreboard?.fasterTimes}
-              slowerTimes={scoreboard?.slowerTimes}
-              currentTime={totalTime / 1000}
-              rank={scoreboard?.rank}
-            />
-          )}
+          <div className="flex gap-6 ">
+            {(previousScore?.time && totalTime / 1000 < previousScore?.time) ||
+            !previousScore ? (
+              <form onSubmit={(e) => void handleSubmit(e)}>
+                {currentLetter === "Z" && isSignedIn && (
+                  <SubmitScoreCard
+                    previousTime={previousScore?.time}
+                    currentTime={totalTime / 1000}
+                    nickname={nickname}
+                    setNickname={setNickname}
+                  />
+                )}
+              </form>
+            ) : (
+              <WorseTimeCard
+                previousTime={previousScore?.time}
+                currentTime={totalTime / 1000}
+              />
+            )}
+            {scoreboard && (
+              <ScoreboardCard
+                fasterTimes={scoreboard?.fasterTimes}
+                slowerTimes={scoreboard?.slowerTimes}
+                currentTime={totalTime / 1000}
+                rank={scoreboard?.rank + 1}
+              />
+            )}
+          </div>
         </div>
         <Footer />
       </main>
