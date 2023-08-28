@@ -254,6 +254,7 @@ export default function Home() {
           {currentLetter === "Z" && <h2>Mistakes: {mistakes}</h2>}
           {!isSignedIn && <button onClick={() => openSignUp()}>Sign up</button>}
           <div className="flex gap-6 ">
+            {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
             {(previousScore?.time && totalTime / 1000 < previousScore?.time) ||
             !previousScore ? (
               <form onSubmit={(e) => void handleSubmit(e)}>
